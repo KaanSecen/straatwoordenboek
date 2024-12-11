@@ -35,7 +35,7 @@ The script produces a JSON file structured as follows:
             "creation_date": 2008,
             "meanings": [
                 {
-                    "meaning": "wiet",
+                    "meaning": "hash",
                     "likes": 45,
                     "dislikes": 2,
                     "example": "ey macho heb je assie of wierie?"
