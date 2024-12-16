@@ -5,18 +5,15 @@ import json
 import math
 import time
 
-
 base_url = "https://straatwoordenboek.nl/letter/"
-
 
 letters = [chr(i) for i in range(ord('a'), ord('z') + 1)]
 
-straatwoorden_data = {}
+straatwoorden_data = []
 
 # Scrape data for each letter
 for letter in letters:
     print(f"Scraping words starting with letter: {letter.upper()}")
-    straatwoorden_data[letter.upper()] = []
 
     response = requests.get(f"{base_url}{letter}")
     if response.status_code != 200:
@@ -28,13 +25,13 @@ for letter in letters:
     if total_words_text:
         total_words = int(total_words_text.text.split("van")[1].split("woorden")[0].strip())
         words_per_page = 60
-        total_pages = math.ceil(total_words / words_per_page) + 1
+        total_pages = math.ceil(total_words / words_per_page)
     else:
         total_words = 0
         total_pages = 0
 
     # Progress bar for words
-    with tqdm(total=total_words, desc=f"{letter.upper()}: {total_pages} Pages", unit="words") as word_bar:
+    with tqdm(total=total_words, desc=f"{letter.upper()} Pages", unit="words") as word_bar:
         page = 1
         seen_words = set()
 
@@ -56,7 +53,7 @@ for letter in letters:
 
                 if word in seen_words:
                     word_bar.update(1)
-                    continue # Skip duplicate words to avoid processing them again
+                    continue  # Skip duplicate words
 
                 seen_words.add(word)
                 word_response = requests.get(word_url)
@@ -67,7 +64,16 @@ for letter in letters:
                         word_bar.update(1)
                         continue  # Skip words with no meanings
 
-                    word_details = {"word": word, "meanings": []}
+                    word_details = {
+                        "word": word,
+                        "meanings": []
+                    }
+
+                    # Extract word likes and dislikes
+                    word_likes_button = word_soup.find("button", {"wire:click": lambda x: x and "upvote" in x})
+                    word_dislikes_button = word_soup.find("button", {"wire:click": lambda x: x and "downvote" in x})
+                    word_details["likes"] = int(word_likes_button.find("span").text.strip()) if word_likes_button else 0
+                    word_details["dislikes"] = int(word_dislikes_button.find("span").text.strip()) if word_dislikes_button else 0
 
                     # Extract creation date
                     creation_date_span = word_soup.find("span", string=lambda x: x and "Sinds:" in x)
@@ -75,6 +81,7 @@ for letter in letters:
                         creation_date_text = creation_date_span.find_next("span").text.strip()
                         word_details["creation_date"] = int(creation_date_text) if creation_date_text.isdigit() else None
 
+                    # Extract meanings
                     for meaning_div in meaning_divs:
                         try:
                             meaning = meaning_div.find("span", class_="text-xl font-bold").text.strip()
@@ -92,16 +99,16 @@ for letter in letters:
                         except Exception as e:
                             continue
 
-                    straatwoorden_data[letter.upper()].append(word_details)
+                    straatwoorden_data.append(word_details)
 
                 word_bar.update(1)
                 time.sleep(0.5)
 
             page += 1
-            word_bar.set_description(f"{letter.upper()}: {page}/{total_pages} Pages")
+            word_bar.set_description(f"{letter.upper()} Page {page}/{total_pages}")
 
 # Save data to JSON
-output_file = "straatwoordenboek_with_progress.json"
+output_file = "straatwoordenboek.json"
 with open(output_file, mode="w", encoding="utf-8") as file:
     json.dump(straatwoorden_data, file, ensure_ascii=False, indent=4)
 

@@ -28,36 +28,36 @@ pip install requests beautifulsoup4 tqdm
 ## Output
 The script produces a JSON file structured as follows:
 ```json
-{
-    "A": [
-        {
-            "word": "assie",
-            "creation_date": 2008,
-            "meanings": [
-                {
-                    "meaning": "hash",
-                    "likes": 45,
-                    "dislikes": 2,
-                    "example": "ey macho heb je assie of wierie?"
-                }
-            ]
-        }
-    ],
-    "B": [
-        {
-            "word": "brada",
-            "creation_date": 2010,
-            "meanings": [
-                {
-                    "meaning": "Broer",
-                    "likes": 50,
-                    "dislikes": 1,
-                    "example": "Mijn brada is er altijd voor mij."
-                }
-            ]
-        }
-    ]
-}
+[
+    {
+        "word": "assie",
+        "creation_date": 2008,
+        "meanings": [
+            {
+                "meaning": "hash",
+                "likes": 45,
+                "dislikes": 2,
+                "example": "ey macho heb je assie of wierie?"
+            }
+        ],
+      "likes": 8,
+      "dislikes": 9
+    },
+    {
+        "word": "brada",
+        "creation_date": 2010,
+        "meanings": [
+            {
+                "meaning": "Broer",
+                "likes": 50,
+                "dislikes": 1,
+                "example": "Mijn brada is er altijd voor mij."
+            }
+        ],
+      "likes": 6,
+      "dislikes": 8
+    }
+]
 ```
 
 ## Coming Features
